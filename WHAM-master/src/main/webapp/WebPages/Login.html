@@ -1,0 +1,107 @@
+﻿<html>
+<head>
+    <title>WHAM</title>
+    <link rel="shortcut icon" type="image/png" href="../images/WHAM_new.png" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="../images/WHAM_new.png" />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.0.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+    <link rel="stylesheet" href="../css/LogIn.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link href="../css/style.css" rel="stylesheet" />
+    <link href="../css/pageStyle.css" rel="stylesheet" />
+    <script>
+
+
+        function userLogin() {
+            $(document).ready(function () {
+                var emailId = $("#emailid").val();
+                var password = $("#password").val();
+
+                $.ajax({
+                    url: 'http://ec2-52-87-159-69.compute-1.amazonaws.com:8080/WHAM/validateUser' + '?emailId=' + emailId + '&password=' + password,
+                    async: false,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    type: 'POST',
+                    success: function (data) {
+                        if (data != "null" && data != "") {
+
+                            var string = data.firstName;
+                            // var string1 = string.split("@");
+                            // sessionStorage.setItem("name", string1[0]);
+                            sessionStorage.setItem("name", string);
+                            sessionStorage.setItem("id", data.userId);
+                            location.href = "AfterLoginPage.html"
+
+                        } else {
+                            alert("Invalid Login");
+                        }
+                    }
+                })
+            });
+        };
+    </script>
+</head>
+<body style="overflow:hidden">
+    <header>
+        <div class="cd-logo">
+            <a href="HomePage.html"><img src="../images/WHAM Logo.png" alt="Logo"></a>
+        </div>
+        <nav class="cd-main-nav-wrapper">
+            <ul class="cd-main-nav">
+                <li class="loginBtn" style="padding-top:12px">
+                    <a href="HomePage.html" type="button" class="btn btn-default" style="text-decoration: none;">HOME</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="intrinsic-container-16x9">
+        <center>
+            <div class="login_container">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h2 class="panel-title" style="padding:10px">Log In</h2>
+                    </div>
+                    <div class="panel-body">
+                        <form accept-charset="UTF-8" id="loginForm">
+                            <fieldset>
+                                <div class="form-group" style="margin: 5px; padding-bottom: 30px">
+                                    <input type="email" class="form-control" placeholder="Email ID" name="emailId" id="emailid" autofocus required>
+                                </div>
+                                <div class="form-group" style="margin:5px;padding-bottom:30px">
+                                    <input class="form-control" placeholder="Password" name="password" id="password" type="password" value="">
+                                </div>
+                                <div class="checkbox">
+
+                                    <input name="remember" type="checkbox" value="Remember Me">
+                                    <span class="checkboxtext">
+                                        Remember me
+                                    </span>
+
+                                </div>
+                                <br />
+                                <button class="btn btn-lg btn-success btn-block" type="button" onclick="userLogin()">LogIn</button>
+                                <br />
+                                <div>
+                                    <br />
+                                    <a href="UserSIgnUp.html">Sign Up</a>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </center>
+    </div>
+</body>
+</html>
+
+ᐧ

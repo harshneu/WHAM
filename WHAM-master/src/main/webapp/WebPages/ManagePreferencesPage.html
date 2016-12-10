@@ -1,0 +1,462 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WHAM</title>
+    <link rel="shortcut icon" type="image/png" href="../images/WHAM_new.png" />
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
+    <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link href='http://fonts.googleapis.com/css?family=Terminal+Dosis' rel='stylesheet' type='text/css' />
+    <link href="../css/bootstrap.css" rel="stylesheet" />
+    <link href="../css/bootstrap-responsive.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <link href="../css/Top Menu/component01.css" rel="stylesheet" />
+    <link href="../css/Top Menu/default01.css" rel="stylesheet" />
+    <link href="../css/pageStyle.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdn.rawgit.com/t4t5/sweetalert/master/dist/sweetalert.min.js"></script>
+    <link href="../css/Top Menu/component01.css" rel="stylesheet" />
+    <link href="../css/Top Menu/default01.css" rel="stylesheet" />
+    <script src="../js/TopMenu/modernizr.custom.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/t4t5/sweetalert/master/dist/sweetalert.css">
+
+    <link href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" rel="Stylesheet" type="text/css">
+    <style>
+        table, td, th {
+            border-radius: 10px;
+            margin: 10px;
+            padding: 10px;
+            border-color: darkred;
+            border-style: solid;
+            border-width: 2px;
+            margin-left: 10px;
+        }
+
+        .button {
+            font-family: 'Comic Sans MS';
+            background-color: darkred;
+            border-radius: 10px;
+            color: white;
+            height: 30px;
+            width: 100px;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        //get url
+        var url = window.location.href;
+        var arr = url.split("/");
+        //create api url with current domain and port number arr[2]
+        var api_url1 = "http://" + "ec2-52-87-159-69.compute-1.amazonaws.com:8080" + "/WHAM/getPrefList";
+        var ID = sessionStorage.getItem("id") || "";
+        var api_url2 = "http://" + "ec2-52-87-159-69.compute-1.amazonaws.com:8080" + "/WHAM/getPref?userPreference="+ID;
+        var preferences;
+        var userPref;
+        var selectedCategory0Pref = new Object();
+        var selectedCategory1Pref = new Object();
+        var selectedCategory2Pref = new Object();
+        var deletedPreferenceCategory0 = new Object();
+        var deletedPreferenceCategory1 = new Object();
+        var deletedPreferenceCategory2 = new Object();
+        /* Get th json by hitting ../getPrefList api*/
+        $.get({ url: api_url1 }, function (data) {
+            preferences = data;
+
+            /* Get th json by hitting ../getPref api*/
+            $.get({ url: api_url2 }, function (data1) {
+                userPref = data1.selectedPreference;
+                // create list of all event topics. Use this if category = 1.
+                var eventTopicList = preferences.eventTopic;
+                // for holding user selected preferences of selected event topics
+                var userEventTopics = [];
+
+                // create list of all event types. Use this if category = 0.
+                var eventTypeList = preferences.eventType;
+                // for holding user selected preferences for selected event types
+                var userEventTypes = [];
+
+                // create map of all event sub-topics. Use this if category = 2.
+                var map = new Object();
+                for (var i = 0; i < eventTopicList.length; i++) {
+                    var subTops = eventTopicList[i].subTopicsList;
+                    for (var j = 0 ; j < subTops.length; j++) {
+                        map[subTops[j].eventId] = subTops[j].eventName;
+                    }
+                }
+                // for holding user selected preferences for selected event sub-topics
+                var userSubTopics = [];
+
+                //var eventSubTopicList = preferences.eventTopic;
+                for (var i = 0; i < userPref.length; i++) {
+                    switch (userPref[i].eventCategory) {
+                        // if category is event type
+                        case 0: {
+                            userEventTypes.push(eventTypeList[userPref[i].eventId - 1].eventName);
+                            selectedCategory0Pref[userPref[i].eventId] = eventTypeList[userPref[i].eventId - 1].eventName;
+                            break;
+                        }
+                            // if category is event topic
+                        case 1: {
+                            userEventTopics.push(eventTopicList[userPref[i].eventId - 1].topicName);
+                            selectedCategory1Pref[userPref[i].eventId] = eventTopicList[userPref[i].eventId - 1].topicName;
+                            break;
+                        }
+                            // if category is event sub-topic
+                        case 2: {
+                            userSubTopics.push(map[userPref[i].eventId]);
+                            selectedCategory2Pref[userPref[i].eventId] = map[userPref[i].eventId];
+                            break;
+                        }
+
+                    }
+                }
+
+                renderPreferences();
+            });
+
+
+        });
+    </script>
+
+    <script>
+        var eventTypeArray = null;
+        var eventTopicArray = null;
+        function subPreference(eventId, eventCategory) {
+            this.eventId = eventId;
+            this.eventCategory = eventCategory;
+        }
+
+        var userPreferences = new Array();
+        var xmlhttp = new XMLHttpRequest();
+        var url = "http://ec2-52-87-159-69.compute-1.amazonaws.com:8080/WHAM/getPrefList";
+
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                myFunction(xmlhttp.responseText);
+            }
+        }
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+
+        function myFunction(response) {
+
+            var serverResponse = JSON.parse(response);
+
+            var userId = serverResponse.userId;
+            eventTypeArray = serverResponse.eventType;
+            eventTopicArray = serverResponse.eventTopic;
+
+
+            var i, j;
+
+            for (i = 0; i < eventTypeArray.length; i++) {
+                var option = document.createElement("option");
+                option.text = eventTypeArray[i].eventName;
+                document.getElementById('eventName').appendChild(option);
+            }
+
+            for (i = 0; i < eventTopicArray.length; i++) {
+                var option = document.createElement("option");
+                option.text = eventTopicArray[i].topicName;
+                document.getElementById('eventTopic').appendChild(option);
+            }
+
+            var allOption = document.createElement("option");
+            allOption.text = "All sub topics";
+            document.getElementById('eventSubTopic').appendChild(allOption);
+            var subTopicsListArray = eventTopicArray[0].subTopicsList;
+            for (i = 0; i < subTopicsListArray.length; i++) {
+                var option = document.createElement("option");
+                option.text = subTopicsListArray[i].eventName;
+                document.getElementById('eventSubTopic').appendChild(option);
+            }
+
+        }
+
+        function onSelectEventTopic() {
+            var selectedValue = document.getElementById('eventTopic').value;
+            for (var i = 0; i < eventTopicArray.length; i++) {
+                if (eventTopicArray[i].topicName.localeCompare(selectedValue) == 0) {
+                    //var select = document.getElementById("eventSubTopic");
+                    document.getElementById('eventSubTopic').innerHTML = "";
+                    var subTopicsListArray = eventTopicArray[i].subTopicsList;
+                    var allOption = document.createElement("option");
+                    allOption.text = "All sub topics";
+                    document.getElementById('eventSubTopic').appendChild(allOption);
+                    for (i = 0; i < subTopicsListArray.length; i++) {
+                        var option = document.createElement("option");
+                        option.text = subTopicsListArray[i].eventName;
+                        document.getElementById('eventSubTopic').appendChild(option);
+                    }
+                    break;
+                }
+            }
+        }
+
+        $(document).ready(function () {
+            var row = 0;
+            $("#add_row").click(function () {
+
+                var selectedEventType = document.getElementById('eventName').value;
+                var selectedEventTopic = document.getElementById('eventTopic').value;
+                var selectedEventSubTopic = document.getElementById('eventSubTopic').value;
+
+                for (i = 0; i < eventTypeArray.length; i++) {
+                    if (eventTypeArray[i].eventName.trim().localeCompare(selectedEventType) == 0) {
+                        selectedCategory0Pref[eventTypeArray[i].eventId] = eventTypeArray[i].eventName;
+                        break;
+                    }
+                }
+                for (var i = 0; i < eventTopicArray.length; i++) {
+                    if (eventTopicArray[i].topicName.trim().localeCompare(selectedEventTopic) == 0) {
+                        if (selectedEventSubTopic.localeCompare("All sub topics") == 0) {
+                            selectedCategory1Pref[eventTopicArray[i].topicId] = eventTopicArray[i].topicName;
+                        } else {
+                            var subTopicsListArray = eventTopicArray[i].subTopicsList;
+                            for (i = 0; i < subTopicsListArray.length; i++) {
+                                if (subTopicsListArray[i].eventName.trim().localeCompare(selectedEventSubTopic) == 0) {
+                                    selectedCategory2Pref[subTopicsListArray[i].eventId] = subTopicsListArray[i].eventName;
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+
+
+
+                renderPreferences();
+            });
+
+            $("#delete_row").click(function () {
+                for (var key in deletedPreferenceCategory0) {
+                    if (!(deletedPreferenceCategory0 === undefined))
+                        selectedCategory0Pref[key] = undefined;
+                }
+                for (var key in deletedPreferenceCategory1) {
+                    if (!(deletedPreferenceCategory1 === undefined))
+                        selectedCategory1Pref[key] = undefined;
+                }
+                for (var key in deletedPreferenceCategory2) {
+                    if (!(deletedPreferenceCategory2 === undefined))
+                        selectedCategory2Pref[key] = undefined;
+                }
+                renderPreferences();
+            });
+
+        });
+
+
+
+        function renderPreferences() {
+            document.getElementById('preference-category-0').innerHTML = "";
+            document.getElementById('preference-category-1-2').innerHTML = "";
+            var p0 = document.getElementById('preference-category-0');
+            var p1And2 = document.getElementById('preference-category-1-2');
+            for (var key in selectedCategory0Pref) {
+                if (!(selectedCategory0Pref[key] === undefined))
+                    p0.insertAdjacentHTML('beforeend', "<label  class= 'btn btn-primary'  style='background-color: black'  onchange='togglePreferenceSelectionCategory0(" + key + ")'><input type= 'checkbox' autocomplete= 'off'>" + selectedCategory0Pref[key] + "</label>");
+            }
+
+            for (var key in selectedCategory1Pref) {
+                if (!(selectedCategory1Pref[key] === undefined))
+                    p1And2.insertAdjacentHTML('beforeend', "<label class= 'btn btn-primary' style='background-color: black' onchange='togglePreferenceSelectionCategory1(" + key + ")' ><input type='checkbox' autocomplete= 'off' >" + selectedCategory1Pref[key] + "</label>");
+            }
+            for (var key in selectedCategory2Pref) {
+                if (!(selectedCategory2Pref[key] === undefined))
+                    p1And2.insertAdjacentHTML('beforeend', "<label class= 'btn btn-primary' style='background-color: black' onchange='togglePreferenceSelectionCategory2(" + key + ")' ><input type= 'checkbox' autocomplete= 'off'>" + selectedCategory2Pref[key] + "</label>");
+            }
+        }
+
+
+        function togglePreferenceSelectionCategory0(id) {
+            if (deletedPreferenceCategory0[id] === undefined) {
+                deletedPreferenceCategory0[id] = 1;
+            } else {
+                delete deletedPreferenceCategory0[id];
+
+            }
+        }
+
+        function togglePreferenceSelectionCategory1(id) {
+            if (deletedPreferenceCategory1[id] === undefined) {
+                deletedPreferenceCategory1[id] = 1;
+            } else {
+                delete deletedPreferenceCategory1[id];
+            }
+        }
+        function togglePreferenceSelectionCategory2(id) {
+            if (deletedPreferenceCategory2[id] === undefined) {
+                deletedPreferenceCategory2[id] = 1;
+            } else {
+                delete deletedPreferenceCategory2[id];
+            }
+
+        }
+
+        function savePreferences() {
+
+            for (var key in selectedCategory0Pref) {
+                if (!(selectedCategory0Pref[key] === undefined))
+                    userPreferences.push(new subPreference(key, "0"));
+            }
+            for (var key in selectedCategory1Pref) {
+                if (!(selectedCategory1Pref[key] === undefined))
+                    userPreferences.push(new subPreference(key, "1"));
+            }
+            for (var key in selectedCategory2Pref) {
+                if (!(selectedCategory2Pref[key] === undefined))
+                    userPreferences.push(new subPreference(key, "2"));
+            }
+
+            var response = {
+                'userId': ID,
+                'userPreference': userPreferences
+            }
+
+            jQuery.ajax({
+                url: 'http://ec2-52-87-159-69.compute-1.amazonaws.com:8080/WHAM/updatePref',
+                data: JSON.stringify(response),
+                cache: false,
+                contentType: false,
+                processData: false,
+                type: 'POST',
+                success: function (data) {
+                    sweetAlert("Congrats!", "Your have saved your preferences!", "success");
+
+                }
+            });
+        }
+
+
+    </script>
+
+
+</head>
+<body>
+
+    <header>
+        <div class="cd-logo">
+            <a href="AfterLoginPage.html">
+                <img src="../images/WHAM Logo.png" alt="Logo">
+            </a>
+        </div>
+        <ul id="cbp-tm-menu" class="cbp-tm-menu" style="height: 50px;">
+            <li>
+                <a href="#" id="welcome"></a>
+                <ul class="cbp-tm-submenu">
+                    <li>
+                        <a href="create_event.html" class="cbp-tm-icon-pencil">Create Event</a>
+                    </li>
+                    <li>
+                        <a href="ManagePreferencesPage.html" class="cbp-tm-icon-cog disable">Manage Preferences</a>
+                    </li>
+                    <li>
+                        <a href="HomePage.html" class="cbp-tm-icon-archive" onclick="sessionStorage.clear('name')">Log Out</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </header>
+
+    <div class="cd-main-content" style="background-color:transparent">
+        <div class="intrinsic-container-16x9" align="center">
+
+            <div class="form_container container">
+                <h2 style="text-align:center;">
+                    Choose Your Preferences
+
+                </h2>
+                <br>
+                <br>
+                <label for="eventName"><h4>EVENT TYPE</h4></label>
+                <select id="eventName" style=" width:500px">
+                    <option disabled selected value>Select event type</option>
+                </select>
+
+                <br>
+                <table style="border: hidden">
+                    <tr>
+                        <td align="center" style="border: hidden">
+                            <label for="eventTopic"><h4>EVENT TOPIC</h4></label>
+                            <select id="eventTopic" onchange="onSelectEventTopic()" style="width: 240px">
+                                <option disabled selected value>Select event topic</option>
+                            </select>
+                        </td>
+                        <td align="center" style="border: hidden">
+                            <label for="eventSubTopic"><h4>EVENT SUB-TOPIC</h4></label>
+                            <select id="eventSubTopic" style="width: 240px ; margin-left: 20px"></select>
+                        </td>
+                    </tr>
+                </table>
+                <br>
+                <table style="border: hidden">
+                    <tr>
+                        <td align="center" style="border: hidden">
+                            <button id="add_row" class=" button">Add </button>
+                            </select>
+                        </td>
+                        <td align="center" style="border: hidden">
+                            <button id="delete_row" class=" button ">Delete</button>
+                            </select>
+                        </td>
+                        <td align="center" style="border: hidden">
+                            <button onclick="savePreferences()" class=" button ">Save</button>
+                            </select>
+                        </td>
+
+                    </tr>
+                </table>
+
+
+                <label><h3>Selected Preferences</h3></label>
+                <div class="col-md-12 column">
+
+                    <div class="btn-group"  data-toggle="buttons" id="preference-category-0">
+                    </div>
+                    <br><br>
+                    <div class="btn-group" data-toggle="buttons" id="preference-category-1-2">
+                    </div>
+                    <!--table id="tab_pref" >
+                    <tr>
+
+                             <td>
+                               <div class="btn-group" style="background-image: linear-gradient(beige,black)" data-toggle="buttons" id = "preference-category-0">
+                                    </div>
+                                <br><br>
+                             </td>
+                        </tr>
+                        <tr>
+                            <td>
+                        <div class="btn-group" data-toggle="buttons" id = "preference-category-1-2" >
+                                </div>
+                            </td>
+                        </tr>
+                    </tr>
+                    </table-->
+                </div>
+
+
+            </div>
+
+
+
+        </div>
+    </div>
+    <script src="../js/TopMenu/cbpTooltipMenu.min.js"></script>
+    <script>
+        var menu = new cbpTooltipMenu(document.getElementById('cbp-tm-menu'));
+    </script>
+    <script>
+        var temp = sessionStorage.getItem("name") || "";
+        var name = temp.charAt(0).toUpperCase() + temp.slice(1);
+        document.getElementById("welcome").innerHTML = "Hi " + name;
+    </script>
+
+</body>
+</html>

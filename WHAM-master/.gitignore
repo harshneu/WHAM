@@ -1,0 +1,18 @@
+*/target/*
+
+*.class
+
+*.war
+
+// eclipse files
+.classpath
+.project
+
+
+// compiled sources
+/target/
+
+// intellij files
+*.iml
+*.DS_Store
+.idea

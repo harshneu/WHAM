@@ -1,0 +1,183 @@
+﻿<html>
+<head>
+    <title>WHAM</title>
+    <link rel="shortcut icon" type="image/png" href="../images/WHAM_new.png" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="../images/WHAM_new.png" />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.0.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+    <script src="http://cdn.jsdelivr.net/jquery.validation/1.15.0/additional-methods.min.js"></script>
+    <script src="../js/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/dist/sweetalert.css">
+
+    <link rel="stylesheet" href="../css/LogIn.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link href="../css/style.css" rel="stylesheet" />
+    <link href="../css/pageStyle.css" rel="stylesheet" />
+    <link href="../css/SignUp/SignUp.css" rel="stylesheet" />
+    <script src="../js/LogIn.js"></script>
+    <script>
+        var userRegistration = new Array();
+
+        var xmlhttp = new XMLHttpRequest();
+
+        function dataSubmit() {
+            $(document).ready(function () {
+                var firstName = $("#firstname").val();
+                var middleName = $("#middlename").val();
+                var lastName = $("#lastname").val();
+                var emailId = $("#emailId").val();
+                var phoneNo = $("#phoneNo").val();
+                var password = $("#password").val();
+                var confirmedPassword = $("#confirmedPassword").val();
+                
+                $("#userSignUpForm").validate({
+                    onfocusout: false,
+                    rules: {
+                        firstName:{
+                            required: true
+                        },
+                        phoneNo:{
+                            digits: true
+                        },
+                        emailsignup: {
+                            required: true,
+                            email: true
+                        },
+                        password: {
+                            required: true,
+                        },
+                        confirmedPassword: {
+                            required: true,
+                            equalTo: "#password"
+                        }
+                    },
+                    messages: {
+                        firstName: "Please enter your Name",
+                        phoneNo: "Invalid Phone Number",
+                        password: "Please enter a password",
+                        confirmedPassword: "Passwords don't match",
+                        emailsignup: "Please enter a valid email address"
+                    }
+                });
+
+                var response = {
+                    'firstName': firstName, 'middleName': middleName, 'lastName': lastName, 'emailId': emailId, 'phoneNo': phoneNo, 'password': password
+                }
+
+                if ($('#userSignUpForm').valid()) {
+                    $.ajax({
+                        url: 'http://ec2-52-87-159-69.compute-1.amazonaws.com:8080/WHAM/registerUser',
+                        data: JSON.stringify(response),
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        type: 'POST',
+                        success: function (data) {
+                            if (data != "null" && data != "")
+                            { location.href = "http://ec2-52-87-159-69.compute-1.amazonaws.com:8080/WHAM/WebPages/Login.html" }
+                            else {
+                                swal({ title: "Inavlid SignUp!", text: "Please check your details again !!", type: "error", confirmButtonText: "OK" });
+                            }
+                        }
+
+
+
+                    });
+                }
+            });
+        }
+    </script>
+    <style>
+        * {
+            -webkit-box-sizing: initial !important;
+            -moz-box-sizing: initial !important;
+            box-sizing: initial !important;
+        }
+    </style>
+
+</head>
+<body>
+    <header>
+        <div class="cd-logo">
+            <a href="HomePage.html"><img src="../images/WHAM Logo.png" alt="Logo"></a>
+        </div>
+        <nav class="cd-main-nav-wrapper">
+            <ul class="cd-main-nav">
+                <li class="loginBtn" style="padding-top:12px">
+                    <a href="HomePage.html" type="button" class="btn btn-default" style="text-decoration: none;">HOME</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="intrinsic-container-16x9">
+        <center>
+            <div id="container_demo">
+                <div id="wrapper" style="margin-top: 10%;width:100%;">
+
+                    <div id="register" class="form">
+                        <form id="userSignUpForm" action="Login.html" autocomplete="on">
+                            <h1> Sign up </h1>
+                            <span style="display:inline-block; width:30%;">
+                                <p style="width:80%;">
+                                    <label for="firstname" class="uname" data-icon="u">First Name*</label>
+                                    <input id="firstname" name="firstname" required="required" type="text" placeholder="Enter First Name" />
+                                </p>
+                            </span>
+                            <span style="display:inline-block; width:30%;margin-left: 10px;">
+                                <p style="width:80%;">
+                                    <label for="middlename" class="uname" data-icon="u">Middle Name</label>
+                                    <input id="middlename" name="middlename" type="text" placeholder="Enter Middle Name" />
+                                </p>
+                            </span>
+                            <span style="display:inline-block; width:30%; margin-left: 10px;">
+                                <p style="width:80%;">
+                                    <label for="lastname" class="uname" data-icon="u">Last Name</label>
+                                    <input id="lastname" name="lastname" type="text" placeholder="Enter Last Name" />
+                                </p>
+                            </span>
+                            <span style="display:inline-block; width:30%;">
+                                <p style="width:80%">
+                                    <label for="emailId" class="youmail" data-icon="e">Email Id*</label>
+                                    <input id="emailId" name="emailId" required="required" type="email" placeholder="Enter your Email" />
+                                </p>
+                            </span>
+                            <span style="display:inline-block; width:30%;margin-left: 10px;">
+                                <p style="width:80%">
+                                    <label for="phoneNo" class="youmail" data-icon="e">Phone No.</label>
+                                    <input id="phoneNo" name="phoneNo" type="text" placeholder="Enter Phone Number" />
+                                </p>
+                            </span>
+                            <br />
+                            <span style="display:inline-block; width:30%;">
+                                <p style="width:80%;">
+                                    <label for="password" class="youpasswd" data-icon="p">Password </label>
+                                    <input id="password" name="password" required="required" type="password" placeholder="Password" />
+                                </p>
+                            </span>
+                            <span style="display:inline-block; width:30%;margin-left: 10px;">
+                                <p style="width:80%;">
+                                    <label for="confirmedPassword" class="youpasswd" data-icon="p">Confirm Password </label>
+                                    <input id="confirmedPassword" name="confirmedPassword" required="required" type="password" placeholder="Retype Password" />
+                                </p>
+                            </span>
+                            <br />
+
+                            <button class="signupBtn btn btn-success" type="button" onclick="dataSubmit()">Submit</button>
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </center>
+    </div>
+</body>
+</html>
